@@ -1,5 +1,6 @@
-import React, { useState, useContext, useEffect } from "react"
+import React from "react"
 import styled from "styled-components"
+
 // 导入 redux.js 
 import { store, connect, appContext } from "./redux.js"
 
@@ -24,6 +25,7 @@ const App = () => {
     </appContext.Provider>
   );
 }
+
 const Child1 = () => {
   console.log('渲染Child1');
   return (
@@ -33,17 +35,19 @@ const Child1 = () => {
     </Section>
   )
 }
+
 const Child2 = () => {
   console.log('渲染Child2');
   return (
     <Section>
       兄弟组件2
-      <Wrapper2>
+      <UserModifier>
         <span style={{ color: "red" }}>透传数据</span>
-      </Wrapper2>
+      </UserModifier>
     </Section>
   )
 }
+
 const Child3 = () => {
   console.log('渲染Child3');
   return (
@@ -52,7 +56,6 @@ const Child3 = () => {
     </Section>
   )
 }
-
 
 const User = connect(({ state }) => {
   console.log('渲染User');
@@ -63,9 +66,7 @@ const User = connect(({ state }) => {
   )
 })
 
-
-
-const UserModifier = ({ dispatch, state, children }) => {
+const UserModifier = connect(({ dispatch, state, children }) => {
   const onChange = (e) => {
     dispatch("updateUser", { name: e.target.value })
   }
@@ -81,8 +82,6 @@ const UserModifier = ({ dispatch, state, children }) => {
     </div>
   )
 
-}
-
-const Wrapper2 = connect(UserModifier)
+})
 
 export default App
