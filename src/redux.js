@@ -31,11 +31,12 @@ export const store = {
 }
 
 // 使用 connect 批量化生成 HOC 组件 ,即connect
-export const connect = (Component) => {
+export const connect = (selector) => (Component) => {
     return (props) => {
         const { appState, setAppState } = useContext(appContext)
         // 显式地调用 setXXXX 方法，达到精准的控制 视图刷新 的功能
         const [, update] = useState({})
+        const data = selector ? selector(appState) : { appState: appState }
         useEffect(() => {
             store.subscribe(() => {
                 update({})
@@ -45,7 +46,7 @@ export const connect = (Component) => {
         const dispatch = (actionType, payload) => {
             setAppState(reducer(appState, actionType, payload))
         }
-        return <Component {...props} dispatch={dispatch} state={appState} />
+        return <Component {...props} dispatch={dispatch} {...data} />
     }
 }
 

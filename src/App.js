@@ -57,16 +57,24 @@ const Child3 = () => {
   )
 }
 
-const User = connect(({ state }) => {
+// connect 新增一个(selector,dispatchSelector)，对属性和方法进行过滤或者拦截。
+// 修改前： <Component state={state} dispatch={dispatch}>
+// 修改后： 将 state 和 dispatch 进行一层封装，不直接给你这两个东西，而是封装一些功能后弹出。
+// HOC存在两个空 connect=(xxx,yyy)=>( return <Component {...xxx} {...yyy}>)
+// 本版本： 实现的是 attribute的selector，可以对快速的选中： state.xxxx.yyyy.zzz属性
+// 映射规则： attr = state.xxxx.yyyy.attr ，使用时：{attr}=>{...}
+const User = connect((appState) => {
+  return { user: appState.user }
+})(({ user }) => {
   console.log('渲染User');
   return (
     <div>
-      用户名：{state.user.name}
+      用户名：{user.name}
     </div>
   )
 })
 
-const UserModifier = connect(({ dispatch, state, children }) => {
+const UserModifier = connect()(({ dispatch, appState, children }) => {
   const onChange = (e) => {
     dispatch("updateUser", { name: e.target.value })
   }
@@ -74,7 +82,7 @@ const UserModifier = connect(({ dispatch, state, children }) => {
     <div>
       修改用户名：
       <input
-        value={state.user.name}
+        value={appState.user.name}
         onChange={onChange}></input>
       <div>
         父组件数据：{children}
