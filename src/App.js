@@ -42,6 +42,7 @@ const Child2 = () => {
     <Section>
       兄弟组件2
       <Wrapper />
+      <Wrapper2 />
     </Section>
   )
 }
@@ -93,24 +94,10 @@ const Wrapper = () => {
   return <UserModifier dispatch={dispatch} state={appState} />
 }
 
-const UserModifier = ({ dispatch, state }) => {
-  /*
-   通过封装的方式，UserModifer 不再通过 useContext 取全局状态
-   链接全局变量的活由 父组件(HOC) 代为解决
-   通过 { dispatch } 获取直接修改 状态仓库 的工作 
-   而 { state } 获取 状态仓库。
-   对比： 
-   const { appState, setAppState } = useContext(appContext)
-   与：
-   通过 props 接受 ({ appState , dispatch }) 
-   可以发现，核心 reducer 和 dispatch 相当于禁用原始的dispatch，想要修改
-   仓库必须使用我提供的dispatch的方法，这个想法非常牛逼。
-  */
-
+const UserModifier = ({ dispatch, state, children }) => {
   const onChange = (e) => {
     dispatch("updateUser", { name: e.target.value })
   }
-
   return (
     <div>
       修改用户名：
@@ -121,5 +108,19 @@ const UserModifier = ({ dispatch, state }) => {
   )
 
 }
+
+// 使用 createWrapper 批量化生成 HOC 组件 ,即connect
+const createWrapper = (Component) => {
+  return (props) => {
+    const { appState, setAppState } = useContext(appContext)
+    const dispatch = (actionType, payload) => {
+      const newState = createNewState(appState, actionType, payload)
+      setAppState(newState)
+    }
+    return <Component dispatch={dispatch} state={appState} />
+  }
+}
+
+const Wrapper2 = createWrapper(UserModifier)
 
 export default App
