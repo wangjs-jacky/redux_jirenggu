@@ -16,13 +16,23 @@ const Section = styled.section`
   }
 `
 
-const App = () => {
-  const [appState, setAppState] = useState({
+// 使用初衷：在Hooks的渲染原则是：一旦调用了setAppState，App会进行重复渲染，于是底下所有组件全部被重复渲染了。
+// 解决：直接废弃掉 Hooks 提供的 setAppState 方法。
+// 做法：自己创建 store 对象，自己维护 state 和 修改这个 state 的方法
+// 依次来替换掉 原始 的 react-Hooks 自己提供的钩子函数。
+const store = {
+  appState: {
     user: { name: "王家盛", age: 18 }
-  })
-  const contextValue = { appState, setAppState }
+  },
+  setAppState(newState) {
+    console.log('newState', newState);
+    store.appState = newState
+  }
+}
+
+const App = () => {
   return (
-    <appContext.Provider value={contextValue}>
+    <appContext.Provider value={store}>
       <Child1></Child1>
       <Child2></Child2>
       <Child3></Child3>
@@ -60,10 +70,10 @@ const Child3 = () => {
 
 const User = () => {
   console.log('渲染User');
-  const contextValue = useContext(appContext)
+  const { appState } = useContext(appContext)
   return (
     <div>
-      用户名：{contextValue.appState.user.name}
+      用户名：{appState.user.name}
     </div>
   )
 }
@@ -83,7 +93,6 @@ const createNewState = (state, actionType, payload) => {
 }
 
 const UserModifier = ({ dispatch, state, children }) => {
-  console.log('UserModifier被调用了');
   const onChange = (e) => {
     dispatch("updateUser", { name: e.target.value })
   }
@@ -105,9 +114,12 @@ const UserModifier = ({ dispatch, state, children }) => {
 const createWrapper = (Component) => {
   return (props) => {
     const { appState, setAppState } = useContext(appContext)
+    // 显式地调用 setXXXX 方法，达到精准的控制 视图刷新 的功能
+    const [, update] = useState({})
     const dispatch = (actionType, payload) => {
-      const newState = createNewState(appState, actionType, payload)
-      setAppState(newState)
+      setAppState(createNewState(appState, actionType, payload))
+      // 在 dispatch 后刷新
+      update({})
     }
     return <Component {...props} dispatch={dispatch} state={appState} />
   }
