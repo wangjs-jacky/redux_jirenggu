@@ -42,7 +42,9 @@ const Child2 = () => {
     <Section>
       兄弟组件2
       <Wrapper />
-      <Wrapper2 />
+      <Wrapper2>
+        <span style={{ color: "red" }}>透传数据</span>
+      </Wrapper2>
     </Section>
   )
 }
@@ -104,6 +106,9 @@ const UserModifier = ({ dispatch, state, children }) => {
       <input
         value={state.user.name}
         onChange={onChange}></input>
+      <div>
+        父组件数据：{children}
+      </div>
     </div>
   )
 
@@ -117,7 +122,8 @@ const createWrapper = (Component) => {
       const newState = createNewState(appState, actionType, payload)
       setAppState(newState)
     }
-    return <Component dispatch={dispatch} state={appState} />
+    console.log('props', props.children);
+    return <Component {...props} dispatch={dispatch} state={appState} />
   }
 }
 
