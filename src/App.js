@@ -30,6 +30,7 @@ const App = () => {
   );
 }
 const Child1 = () => {
+  console.log('渲染Child1');
   return (
     <Section>
       兄弟组件1
@@ -38,10 +39,10 @@ const Child1 = () => {
   )
 }
 const Child2 = () => {
+  console.log('渲染Child2');
   return (
     <Section>
       兄弟组件2
-      <Wrapper />
       <Wrapper2>
         <span style={{ color: "red" }}>透传数据</span>
       </Wrapper2>
@@ -49,6 +50,7 @@ const Child2 = () => {
   )
 }
 const Child3 = () => {
+  console.log('渲染Child3');
   return (
     <Section>
       兄弟组件3
@@ -57,6 +59,7 @@ const Child3 = () => {
 }
 
 const User = () => {
+  console.log('渲染User');
   const contextValue = useContext(appContext)
   return (
     <div>
@@ -65,10 +68,6 @@ const User = () => {
   )
 }
 
-// 创建一个新的状态需要几个要素：
-// 1. 修改的是哪儿个 数据源(状态仓库)
-// 2. 对这个仓库中的什么变量做什么操作？
-// 3. 传递的数据，即payload（payload这个词很形象，载荷）
 const createNewState = (state, actionType, payload) => {
   if (actionType === "updateUser") {
     return {
@@ -83,20 +82,8 @@ const createNewState = (state, actionType, payload) => {
   }
 }
 
-const Wrapper = () => {
-  // 通过 HOC ：只做一件事，就是将这个组件与全局状态库链接起来。
-  const { appState, setAppState } = useContext(appContext)
-  // 由于之前reducer需要接受三个值：状态仓库| actionType |payload
-  // 实际上，对于用户而言，不用每次使用的时候频繁输入: 状态仓库。
-  // 于是，封装了 dispatch 将输入参数进一步缩小为只需要输入： actionType | payload
-  const dispatch = (actionType, payload) => {
-    const newState = createNewState(appState, actionType, payload)
-    setAppState(newState)
-  }
-  return <UserModifier dispatch={dispatch} state={appState} />
-}
-
 const UserModifier = ({ dispatch, state, children }) => {
+  console.log('UserModifier被调用了');
   const onChange = (e) => {
     dispatch("updateUser", { name: e.target.value })
   }
@@ -122,7 +109,6 @@ const createWrapper = (Component) => {
       const newState = createNewState(appState, actionType, payload)
       setAppState(newState)
     }
-    console.log('props', props.children);
     return <Component {...props} dispatch={dispatch} state={appState} />
   }
 }
