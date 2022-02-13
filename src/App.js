@@ -1,8 +1,7 @@
 import React, { useState, useContext, useEffect } from "react"
 import styled from "styled-components"
-
-// 创建一个全局的环境
-const appContext = React.createContext(null)
+// 导入 redux.js 
+import { store, connect, appContext } from "./redux.js"
 
 const Section = styled.section`
   border: 1px solid #000;
@@ -15,31 +14,6 @@ const Section = styled.section`
     border: 1px dashed #333;
   }
 `
-const store = {
-  appState: {
-    user: { name: "王家盛", age: 18 }
-  },
-  setAppState(newState) {
-    console.log('newState', newState);
-    store.appState = newState
-    store.listeners.map(fn => fn(store.appState))
-  },
-  /*
-    通过 [,update] = useState()刷新视图的方法存在一个问题：
-    createWrapper(connect) 会单独生成一个dispatch函数, 于是每一个connect的组件，只会刷新自己的状态，
-    而无法把这个 state 的变化 映射到 所有依赖这个state的组件中。
-    解决方法： 使用 eventhub，订阅 state 的变化。
-    一旦某个state，就将 全局订阅state变化的组件 给渲染一下。
-  */
-  listeners: [],
-  subscribe(fn) {
-    store.listeners.push(fn)
-    return () => {
-      const index = store.listeners.indexOf(fn)
-      store.listeners.splice(index, 1)
-    }
-  }
-}
 
 const App = () => {
   return (
@@ -79,26 +53,8 @@ const Child3 = () => {
   )
 }
 
-// 使用 createWrapper 批量化生成 HOC 组件 ,即connect
-const createWrapper = (Component) => {
-  return (props) => {
-    const { appState, setAppState } = useContext(appContext)
-    // 显式地调用 setXXXX 方法，达到精准的控制 视图刷新 的功能
-    const [, update] = useState({})
-    useEffect(() => {
-      store.subscribe(() => {
-        update({})
-      })
-    }, [])
 
-    const dispatch = (actionType, payload) => {
-      setAppState(createNewState(appState, actionType, payload))
-    }
-    return <Component {...props} dispatch={dispatch} state={appState} />
-  }
-}
-
-const User = createWrapper(({ state }) => {
+const User = connect(({ state }) => {
   console.log('渲染User');
   return (
     <div>
@@ -107,19 +63,7 @@ const User = createWrapper(({ state }) => {
   )
 })
 
-const createNewState = (state, actionType, payload) => {
-  if (actionType === "updateUser") {
-    return {
-      ...state,
-      user: {
-        ...state.user,
-        ...payload
-      }
-    }
-  } else {
-    return state
-  }
-}
+
 
 const UserModifier = ({ dispatch, state, children }) => {
   const onChange = (e) => {
@@ -139,6 +83,6 @@ const UserModifier = ({ dispatch, state, children }) => {
 
 }
 
-const Wrapper2 = createWrapper(UserModifier)
+const Wrapper2 = connect(UserModifier)
 
 export default App
