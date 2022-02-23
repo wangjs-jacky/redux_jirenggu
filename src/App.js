@@ -62,6 +62,19 @@ const Child3 = connect(state => {
   )
 })
 
+// 创建一个专门修改 User 对象的环境(即，只暴露全局与User有关的属性和修改属性的方法)
+const mapStatetoProps = state => {
+  return { group: state.group }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    updateUser: (attrs) => dispatch("updateUser", attrs)
+  }
+}
+
+const connectToUser = connect(mapStatetoProps, mapDispatchToProps)
+
 // connect 新增一个(selector,dispatchSelector)，对属性和方法进行过滤或者拦截。
 // 修改前： <Component state={state} dispatch={dispatch}>
 // 修改后： 将 state 和 dispatch 进行一层封装，不直接给你这两个东西，而是封装一些功能后弹出。
