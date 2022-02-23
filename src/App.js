@@ -4,6 +4,9 @@ import styled from "styled-components"
 // 导入 redux.js 
 import { store, connect, appContext } from "./redux.js"
 
+// 导入 connecters
+import { connectToUser } from "./connecters/connectToUser"
+
 const Section = styled.section`
   border: 1px solid #000;
   width: 70vw;
@@ -62,18 +65,7 @@ const Child3 = connect(state => {
   )
 })
 
-// 创建一个专门修改 User 对象的环境(即，只暴露全局与User有关的属性和修改属性的方法)
-const mapStatetoProps = state => {
-  return { user: state.user }
-}
 
-const mapDispatchToProps = dispatch => {
-  return {
-    updateUser: (attrs) => dispatch("updateUser", attrs)
-  }
-}
-
-const connectToUser = connect(mapStatetoProps, mapDispatchToProps)
 
 // connect 新增一个(selector,dispatchSelector)，对属性和方法进行过滤或者拦截。
 // 修改前： <Component state={state} dispatch={dispatch}>
