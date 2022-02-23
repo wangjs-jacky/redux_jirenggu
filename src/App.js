@@ -79,9 +79,15 @@ const User = connect((appState) => {
   )
 })
 
-const UserModifier = connect()(({ dispatch, appState, children }) => {
+// 使用 第2个 connect 来演示，connect的第二个参数
+
+const UserModifier = connect(null, (dispatch) => {
+  return {
+    updateUser: (attrs) => dispatch("updateUser", attrs)
+  }
+})(({ updateUser, appState, children }) => {
   const onChange = (e) => {
-    dispatch("updateUser", { name: e.target.value })
+    updateUser({ name: e.target.value })
   }
   return (
     <div>

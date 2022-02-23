@@ -42,13 +42,17 @@ const changed = (oldState, newState) => {
     return changed;
 }
 // 使用 connect 批量化生成 HOC 组件 ,即connect
-export const connect = (selector) => (Component) => {
+export const connect = (selector, dispatchSelector) => (Component) => {
     return (props) => {
         console.log('connect组件渲染');
+        const dispatch = (actionType, payload) => {
+            setAppState(reducer(appState, actionType, payload))
+        }
         const { appState, setAppState } = useContext(appContext)
         // 显式地调用 setXXXX 方法，达到精准的控制 视图刷新 的功能
         const [, update] = useState({})
         const data = selector ? selector(appState) : { appState: appState }
+        const dispatchers = dispatchSelector ? dispatchSelector(dispatch) : { dispatch: dispatch }
         useEffect(() => {
             const unsubscribe = store.subscribe(() => {
                 console.log("启动订阅");
@@ -63,10 +67,7 @@ export const connect = (selector) => (Component) => {
             // 此时依赖改为 [selector,appState] 也不会重复订阅。每次值变化的时，先执行return的unsubscribe函数。
         }, [selector])
 
-        const dispatch = (actionType, payload) => {
-            setAppState(reducer(appState, actionType, payload))
-        }
-        return <Component {...props} dispatch={dispatch} {...data} />
+        return <Component {...props} {...dispatchers} {...data} />
     }
 }
 
