@@ -48,14 +48,19 @@ const Child2 = () => {
   )
 }
 
-const Child3 = () => {
+const Child3 = connect(state => {
+  return { group: state.group }
+})(({ group }) => {
   console.log('渲染Child3');
   return (
     <Section>
       兄弟组件3
+      <div>
+        打印<strong>store.group属性</strong>:{group}
+      </div>
     </Section>
   )
-}
+})
 
 // connect 新增一个(selector,dispatchSelector)，对属性和方法进行过滤或者拦截。
 // 修改前： <Component state={state} dispatch={dispatch}>

@@ -6,7 +6,8 @@ export const appContext = React.createContext(null)
 
 export const store = {
     appState: {
-        user: { name: "王家盛", age: 18 }
+        user: { name: "王家盛", age: 18 },
+        group: "前端小组"
     },
     setAppState(newState) {
         console.log('newState', newState);
@@ -30,6 +31,16 @@ export const store = {
     }
 }
 
+const changed = (oldState, newState) => {
+    let changed = false;
+    // 进行 深比较 
+    for (let key in oldState) {
+        if (oldState[key] !== newState[key]) {
+            changed = true
+        }
+    }
+    return changed;
+}
 // 使用 connect 批量化生成 HOC 组件 ,即connect
 export const connect = (selector) => (Component) => {
     return (props) => {
@@ -39,9 +50,15 @@ export const connect = (selector) => (Component) => {
         const data = selector ? selector(appState) : { appState: appState }
         useEffect(() => {
             store.subscribe(() => {
-                update({})
+                const newData = selector ? selector(store.appState) : { appState: store.appState }
+                if (changed(data, newData)) {
+                    console.log('视图真实update');
+                    // 这里可以对state进行精准控制
+                    update({})
+                }
             })
-        }, [])
+            // 可以尝试下将 [selector] 设置成 [selector,appState] ，观察“视图真实update”的执行数量:2——>4——>6
+        }, [selector])
 
         const dispatch = (actionType, payload) => {
             setAppState(reducer(appState, actionType, payload))
