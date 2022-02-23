@@ -2,8 +2,8 @@ import React from "react"
 import styled from "styled-components"
 
 // 导入 redux.js 
-// 不再导出 store， 而是导出 createStore
-import { createStore, appContext } from "./redux.js"
+// 不再导出 appContext 而是导出 Provider 连接全局函数
+import { createStore, Provider } from "./redux.js"
 
 // 导入 connecters
 import { connectToUser } from "./connecters/connectToUser"
@@ -46,11 +46,11 @@ const Section = styled.section`
 
 const App = () => {
   return (
-    <appContext.Provider value={store}>
+    <Provider store={store}>
       <Child1></Child1>
       <Child2></Child2>
       <Child3></Child3>
-    </appContext.Provider>
+    </Provider>
   );
 }
 

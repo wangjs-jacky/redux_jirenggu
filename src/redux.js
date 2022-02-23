@@ -75,3 +75,12 @@ export const connect = (selector, dispatchSelector) => (Component) => {
         return <Component {...props} {...dispatchers} {...data} />
     }
 }
+
+// 封装 Provider 
+export const Provider = ({ store, children }) => {
+    return (
+        <appContext.Provider value={store}>
+            {children}
+        </appContext.Provider>
+    );
+}
