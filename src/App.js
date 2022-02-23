@@ -2,11 +2,35 @@ import React from "react"
 import styled from "styled-components"
 
 // 导入 redux.js 
-import { store, connect, appContext } from "./redux.js"
+// 不再导出 store， 而是导出 createStore
+import { createStore, appContext } from "./redux.js"
 
 // 导入 connecters
 import { connectToUser } from "./connecters/connectToUser"
 import { connectToChild3 } from "./connecters/connectToChild3"
+
+// 用户编写：应是从外部传入 redux 中的 appState 对象中。
+const initState = {
+  user: { name: "王家盛", age: 18 },
+  group: "前端小组"
+}
+
+// 用户编写：应是从外部传入 store 中的 reducer 对象中。
+const reducer = (state, actionType, payload) => {
+  if (actionType === "updateUser") {
+    return {
+      ...state,
+      user: {
+        ...state.user,
+        ...payload
+      }
+    }
+  } else {
+    return state
+  }
+}
+
+const store = createStore(reducer, initState)
 
 const Section = styled.section`
   border: 1px solid #000;

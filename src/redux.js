@@ -4,11 +4,9 @@ import React from "react";
 // 创建一个全局的环境
 export const appContext = React.createContext(null)
 
-export const store = {
-    appState: {
-        user: { name: "王家盛", age: 18 },
-        group: "前端小组"
-    },
+const store = {
+    appState: undefined,
+    reducer: undefined,
     setAppState(newState) {
         console.log('newState', newState);
         store.appState = newState
@@ -31,6 +29,13 @@ export const store = {
     }
 }
 
+// createStore
+export const createStore = (reducer, initState) => {
+    store.reducer = reducer
+    store.appState = initState
+    return store
+}
+
 const changed = (oldState, newState) => {
     let changed = false;
     // 进行 深比较 
@@ -46,7 +51,7 @@ export const connect = (selector, dispatchSelector) => (Component) => {
     return (props) => {
         console.log('connect组件渲染');
         const dispatch = (actionType, payload) => {
-            setAppState(reducer(appState, actionType, payload))
+            setAppState(store.reducer(appState, actionType, payload))
         }
         const { appState, setAppState } = useContext(appContext)
         // 显式地调用 setXXXX 方法，达到精准的控制 视图刷新 的功能
@@ -68,19 +73,5 @@ export const connect = (selector, dispatchSelector) => (Component) => {
         }, [selector])
 
         return <Component {...props} {...dispatchers} {...data} />
-    }
-}
-
-export const reducer = (state, actionType, payload) => {
-    if (actionType === "updateUser") {
-        return {
-            ...state,
-            user: {
-                ...state.user,
-                ...payload
-            }
-        }
-    } else {
-        return state
     }
 }
