@@ -64,7 +64,7 @@ const Child3 = connect(state => {
 
 // 创建一个专门修改 User 对象的环境(即，只暴露全局与User有关的属性和修改属性的方法)
 const mapStatetoProps = state => {
-  return { group: state.group }
+  return { user: state.user }
 }
 
 const mapDispatchToProps = dispatch => {
@@ -81,9 +81,7 @@ const connectToUser = connect(mapStatetoProps, mapDispatchToProps)
 // HOC存在两个空 connect=(xxx,yyy)=>( return <Component {...xxx} {...yyy}>)
 // 本版本： 实现的是 attribute的selector，可以对快速的选中： state.xxxx.yyyy.zzz属性
 // 映射规则： attr = state.xxxx.yyyy.attr ，使用时：{attr}=>{...}
-const User = connect((appState) => {
-  return { user: appState.user }
-})(({ user }) => {
+const User = connectToUser(({ user }) => {
   console.log('渲染User');
   return (
     <div>
@@ -94,11 +92,7 @@ const User = connect((appState) => {
 
 // 使用 第2个 connect 来演示，connect的第二个参数
 
-const UserModifier = connect(null, (dispatch) => {
-  return {
-    updateUser: (attrs) => dispatch("updateUser", attrs)
-  }
-})(({ updateUser, appState, children }) => {
+const UserModifier = connectToUser(({ updateUser, user, children }) => {
   const onChange = (e) => {
     updateUser({ name: e.target.value })
   }
@@ -106,7 +100,7 @@ const UserModifier = connect(null, (dispatch) => {
     <div>
       修改用户名：
       <input
-        value={appState.user.name}
+        value={user.name}
         onChange={onChange}></input>
       <div>
         父组件数据：{children}
