@@ -44,12 +44,14 @@ const changed = (oldState, newState) => {
 // 使用 connect 批量化生成 HOC 组件 ,即connect
 export const connect = (selector) => (Component) => {
     return (props) => {
+        console.log('connect组件渲染');
         const { appState, setAppState } = useContext(appContext)
         // 显式地调用 setXXXX 方法，达到精准的控制 视图刷新 的功能
         const [, update] = useState({})
         const data = selector ? selector(appState) : { appState: appState }
         useEffect(() => {
-            store.subscribe(() => {
+            const unsubscribe = store.subscribe(() => {
+                console.log("启动订阅");
                 const newData = selector ? selector(store.appState) : { appState: store.appState }
                 if (changed(data, newData)) {
                     console.log('视图真实update');
@@ -57,7 +59,8 @@ export const connect = (selector) => (Component) => {
                     update({})
                 }
             })
-            // 可以尝试下将 [selector] 设置成 [selector,appState] ，观察“视图真实update”的执行数量:2——>4——>6
+            return unsubscribe
+            // 此时依赖改为 [selector,appState] 也不会重复订阅。每次值变化的时，先执行return的unsubscribe函数。
         }, [selector])
 
         const dispatch = (actionType, payload) => {
