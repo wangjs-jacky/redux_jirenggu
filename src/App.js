@@ -6,6 +6,7 @@ import { store, connect, appContext } from "./redux.js"
 
 // 导入 connecters
 import { connectToUser } from "./connecters/connectToUser"
+import { connectToChild3 } from "./connecters/connectToChild3"
 
 const Section = styled.section`
   border: 1px solid #000;
@@ -51,9 +52,7 @@ const Child2 = () => {
   )
 }
 
-const Child3 = connect(state => {
-  return { group: state.group }
-})(({ group }) => {
+const Child3 = connectToChild3(({ group }) => {
   console.log('渲染Child3');
   return (
     <Section>
